@@ -38,6 +38,8 @@ def get_zotero_collection(
     
     # Querying the list of zotero collections to extract the ID for collection name:
     # If no collections provided:
+    zotero_con.add_parameters(sort="dateAdded", direction="asc")
+
     if collection_name == None:
         items = zotero_con.everything(zotero_con.items())
         
@@ -53,7 +55,9 @@ def get_zotero_collection(
             return None
 
         items = zotero_con.everything(zotero_con.collection_items(collection_id))
-        
+    
+    #print("\n\n", items[0]["data"]["dateAdded"], items[-1]["data"]["dateAdded"])
+
     return items
 
 # Converting a zotero collection to the dataframe:
@@ -169,7 +173,93 @@ def get_all_collections(
 
     return collections
 
-def get_collection_name():
+def create_collection_counts(items, collections, cutoff=None):
+    """The method ingests a list of zotero items and collections and generates
+    a dataframe containing the amount of sources read per collection.
+
+    Args:
+        
+        items (lst): The list of zotero item data.
+
+        collections (lst): The list of collection data.
+
+        cutoff (None|int): A number that determines the minimum number of sources read required for 
+            a collection to be included in the dataframe. If a collection has a number of sources read
+            lower than the cutoff it is not included in the final df.
+    
+    Retuns:
+        pd.Dataframe: The dataframe containing the number of sources from each 
+            collection read. 
+
     """
-    """
-    pass
+    # TODO: Determine if I should only extract data from Parent Collections.
+    # Parsing the collections for a list of individual collection names: 
+    collections = [collection["data"] for collection in collections]
+    items = [item["data"] for item in items if item["data"]["itemType"] != "attachment" and len(item["data"]["collections"]) > 0] # <-- Removing attachments from zotero item
+    
+    # Counting the number of items in each collection (O(n^2) cringe): 
+    for collection in collections:
+
+        num_items = 0 
+        for item in items:
+            if len(item["collections"]) > 0:
+                if item["collections"][0] == collection["key"]:
+                    num_items = num_items + 1 
+        
+        collection["count"] = num_items
+        
+    # Converting collections dataframe to dict:
+    if cutoff != None:
+        collections_cutoff = [collection for collection in collections if collection["count"] > cutoff]
+    else:
+        collections_cutoff = collections 
+
+    collection_df = pd.DataFrame(collections_cutoff)
+    
+    return collection_df
+
+def create_collection_timeseries_df(items, collections, start_date=None, end_date=None):
+    """The method that converts the item dictionary to a pandas dataframe containing the counts
+    of collections read for each day in the date range.
+    """    
+    # Depnding on the combination of start and end date values provided the index range will be built:
+    if start_date == None and end_date == None:
+
+        # Assuming the main collection items are sorted by dateAdded in ascending order - creating date range:
+        start_date = items[0]["data"]["dateAdded"]
+        end_date = items[-1]["data"]["dateAdded"]
+        datetime_index = pd.date_range(start=start_date, end=end_date)
+    
+    elif end_date == None:
+        year = datetime.datetime.now().year
+        end_date = datetime.date(year, 12, 31)
+    else:
+        pass
+
+    datetime_index = pd.date_range(start=start_date, end=end_date, freq='D')
+
+    # Building a dictionary with the datetime index values as the main key to be populated:
+    collection_count_dict = {}
+
+    for date in datetime_index:
+        # All collections queried for that date (that have collection values):
+        collections_date = [
+            item for item in extract_zotero_items_for_date(items, date=date.strftime("%Y-%m-%d")) 
+            if len(item["data"]["collections"]) > 0]
+        
+        single_day_count = {}
+
+        for collection in collections:
+            collection_count_lst = [item for item in collections_date if item["data"]["collections"][0] == collection["data"]["key"]]
+            
+            # Adding the count of collection items to the counter dict:
+            single_day_count[collection["data"]["name"]] = len(collection_count_lst)
+            
+
+        # Adding the counter dict to the main dict:
+        collection_count_dict[date.strftime("%Y-%m-%d")] = single_day_count
+
+    # Building the dataframe based on the dictionary:
+    daily_collection_count_df = pd.DataFrame.from_dict(collection_count_dict, orient="index")
+    
+    return daily_collection_count_df

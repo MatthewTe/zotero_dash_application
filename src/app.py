@@ -35,10 +35,9 @@ app.layout = dbc.Container([
                 ),
                 dbc.Row([
                     # Main Zotero Account Inputs:
-                    dbc.Col(dbc.Input(id="zotero_library_id", type="number", placeholder="Library ID")),
-                    dbc.Col(dbc.Input(id="zotero_api_key", type="text", placeholder="API Key")),
-                    dbc.Col(dbc.Button("No Data Found", color="danger", id="status_button")),
-                    dbc.Col(html.H4(id="collection_value_count"))
+                    dbc.Col(dbc.Input(id="zotero_library_id", type="number", placeholder="Zotero Library ID")),
+                    dbc.Col(dbc.Input(id="zotero_api_key", type="text", placeholder="Zotero API Key")),
+                    dbc.Col(dbc.Button("No Data Found", color="danger", id="status_button"))
                 ])
             ]
         )
@@ -58,7 +57,6 @@ app.layout = dbc.Container([
     Output("all_zotero_collections", "data"),
     Output("status_button", "children"),
     Output("status_button", "color"),
-    Output("collection_value_count", "children"),
 
     Input("zotero_library_id", "value"),
     Input("zotero_api_key", "value")
@@ -81,7 +79,9 @@ def store_zotero_library(library_id=None, api_key=None):
 
         str: The strings used to update the status checks in the front-end
 
-        str: The number of Zotero items collected.
+        int: The number of Zotero items collected.
+
+
 
     """ 
     # Using the Zotero API to query the full collection:
@@ -98,11 +98,16 @@ def store_zotero_library(library_id=None, api_key=None):
 
         # If Zotero data is successfully queried, generating the status check values:
         if data != None and len(data) > 0:
-            status = "Data Found Successfully"
+            
+            # Building the Button children components with a badge item: 
             color = "success"
-            num_items = f"{len(data)} Items Found!"
+            num_items = len(data)
+            status = [
+                "Data Found Successfully",
+                dbc.Badge(num_items, color="light", text_color="primary", className="ms-1", style={"padding-left": "0.25rem"})
+            ]
 
-        return data, collection_data, status, color, num_items
+        return data, collection_data, status, color
 
 
 if __name__ == "__main__":

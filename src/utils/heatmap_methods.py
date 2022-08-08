@@ -201,15 +201,18 @@ def build_source_array(dataframe, year):
     """
     # Refactoring the zotero dataframe into number of items per day:
     df = dataframe.resample("D").apply({"Title":"count"})
-    
+    df.index = df.index.tz_localize(None)
+
+
     # Creating a pandas datetime index of each day in the current year: 
     heatmap_datetime_index = pd.date_range(
         start=datetime.date(year, 1, 1), 
-        end=(datetime.date(year, 12, 31))
+        end=(datetime.date(year, 12, 31)),
+        
     )
     
     # Full series of only 0 for the year:
-    heatmap_series = pd.Series(data=0, index=heatmap_datetime_index)
+    heatmap_series = pd.Series(data=0, index=heatmap_datetime_index.tz_localize(None))
     
 
     # Replacing the 0 values based on the index values present in the
