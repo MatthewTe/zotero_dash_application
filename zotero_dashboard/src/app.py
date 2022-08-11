@@ -10,13 +10,28 @@ import dash_bootstrap_components as dbc
 from utils import get_zotero_collection, get_all_collections
 
 app = dash.Dash(
+    __name__,
     use_pages=True,
     external_stylesheets=[dbc.themes.BOOTSTRAP],
     suppress_callback_exceptions = True
 )
+server = app.server
+
 
 # Main layout for the Dash Application:
 app.layout = dbc.Container([
+
+    dbc.Modal([
+        dbc.ModalHeader(dbc.ModalTitle("Fullscreen modal")),
+        dbc.ModalBody("Wow this thing takes up a lot of space...")
+    ], 
+    id="inital-tutorial-popup",
+    fullscreen=True,
+    is_open=True,
+    style={
+        }
+    ),    
+
     dbc.Navbar([
 
         dbc.Container(
@@ -38,7 +53,18 @@ app.layout = dbc.Container([
                     dbc.Col(dbc.Input(id="zotero_library_id", type="number", placeholder="Zotero Library ID")),
                     dbc.Col(dbc.Input(id="zotero_api_key", type="text", placeholder="Zotero API Key")),
                     dbc.Col(dbc.Button("No Data Found", color="danger", id="status_button"))
-                ])
+                ]),
+
+                dbc.Tooltip(
+                    "This is your userID from your Zotero account.",
+                    target="zotero_library_id",
+                    placement="bottom"
+                ),
+                dbc.Tooltip(
+                    "This is your web API key for your Zotero account.",
+                    target="zotero_api_key",
+                    placement="bottom"
+                )
             ]
         )
         #dbc.NavItem(dbc.NavLink(page['name'], href=page['path'])) for page in dash.page_registry.values()
@@ -108,7 +134,4 @@ def store_zotero_library(library_id=None, api_key=None):
             ]
 
         return data, collection_data, status, color
-
-
-if __name__ == "__main__":
-    app.run_server(debug=True)
+    
