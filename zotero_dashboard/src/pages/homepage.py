@@ -207,7 +207,7 @@ def build_radial_graph_breakdown(data, collections):
     Input("main_zotero_collection", "data"),
     Input("all_zotero_collections", "data")
 )
-def build_single_collection_timeseries(clickData, items, collections):
+def build_single_collection_timeseries(clickData=None, items=None, collections=None):
     """The method that takes in a collection name as click data from the radial graph and
     creates a timeseries displaying the number of sources read for that particular collection
     per day
