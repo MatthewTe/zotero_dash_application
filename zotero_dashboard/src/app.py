@@ -2,7 +2,7 @@
 import dash
 from dash import dcc
 from dash import html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 import dash_bootstrap_components as dbc
 
@@ -15,7 +15,7 @@ app = dash.Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP],
     suppress_callback_exceptions = True
 )
-server = app.server
+#server = app.server
 
 
 # Main layout for the Dash Application:
@@ -73,7 +73,8 @@ app.layout = dbc.Container([
                     # Main Zotero Account Inputs:
                     dbc.Col(dbc.Input(id="zotero_library_id", type="number", placeholder="Zotero Library ID")),
                     dbc.Col(dbc.Input(id="zotero_api_key", type="text", placeholder="Zotero API Key")),
-                    dbc.Col(dbc.Button("No Data Found", color="danger", id="status_button"))
+                    dbc.Col(dbc.Button("No Data Found", color="danger", id="status_button")),
+                    dbc.Col(dbc.Button("Help", id="help_button", color="info", className="me-1"))
                 ]),
 
                 dbc.Tooltip(
@@ -98,6 +99,18 @@ app.layout = dbc.Container([
     dash.page_container
 
 ])
+
+# Displaying the Help/Tutorial Tooltip:
+@app.callback(
+    Output("inital-tutorial-popup", "is_open"),
+    Input("help_button", "n_clicks"),
+    State("inital-tutorial-popup", "is_open")
+)
+def toggle_modal(n1, is_open):
+    if n1 :
+        return not is_open
+    return is_open
+
 # Main data extraction:
 @app.callback(
     Output("main_zotero_collection", "data"),
@@ -155,7 +168,9 @@ def store_zotero_library(library_id=None, api_key=None):
             ]
 
         return data, collection_data, status, color
-
+    
+    else:
+        return None, None, "No Data Found", "danger"
 
 if __name__ == "__main__":
     app.run_server(host="0.0.0.0", port=8050, debug=True)

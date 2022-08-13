@@ -97,6 +97,9 @@ def generate_heatmap(data):
 
         return heatmap, title_string
 
+    else:
+        return go.Figure(), "No Data Selected"
+
 # Callback that generates a collapsable list of data on a single day from a specific click event:
 @callback(
     Output("main_heatmap_accordion", "children"),
@@ -191,15 +194,19 @@ def build_radial_graph_breakdown(data, collections):
         go.Figure: The Radial Graph.
 
     """
-    # Transforming collection data into radial format:
-    collection_count_df = create_collection_counts(data, collections, cutoff=20)    
-    
-    # Generating the Radar plot:
-    r = collection_count_df["count"].tolist()
-    theta = collection_count_df["name"].tolist()    
-    radar_graph = plot_collections_count_radar_figure(r, theta)
+    if data != None and collections != None:
+        # Transforming collection data into radial format:
+        collection_count_df = create_collection_counts(data, collections, cutoff=20)    
+        
+        # Generating the Radar plot:
+        r = collection_count_df["count"].tolist()
+        theta = collection_count_df["name"].tolist()    
+        radar_graph = plot_collections_count_radar_figure(r, theta)
 
-    return radar_graph
+        return radar_graph
+    
+    else:
+        return go.Figure()
 
 @callback(
     Output("source_timeseries", "figure"),
@@ -277,27 +284,29 @@ def build_total_collection_timeseries(items, collections):
         go.Figure: The timeseries displaying the number of sources read.
 
     """
-    # Creating a dataframe from items:
-    total_items_df = create_collection_timeseries_df(items, collections).cumsum()
-        
-    # Plotting the timeseries based on dataframe:
-    #TODO: Decide on a plotly graph:
-    #total_item_fig = plot_collection_timeseries(total_items_df)
-    total_item_fig = px.area(total_items_df, x=total_items_df.index, y=total_items_df.columns)
+    if items != None and collections != None:
+        # Creating a dataframe from items:
+        total_items_df = create_collection_timeseries_df(items, collections).cumsum()
+            
+        # Plotting the timeseries based on dataframe:
+        total_item_fig = px.area(total_items_df, x=total_items_df.index, y=total_items_df.columns)
 
-    # Customizing the figure:
-    total_item_fig.update_layout(
-        yaxis_title="Source Read",
-        xaxis_title="",
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
-        
-        xaxis=dict(showgrid=False, showline=True, linecolor="black"),
-        yaxis=dict(showgrid=False, showline=True, linecolor="black"),
+        # Customizing the figure:
+        total_item_fig.update_layout(
+            yaxis_title="Source Read",
+            xaxis_title="",
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            
+            xaxis=dict(showgrid=False, showline=True, linecolor="black"),
+            yaxis=dict(showgrid=False, showline=True, linecolor="black"),
 
-        legend=dict(title="Categories")
-    )
+            legend=dict(title="Categories")
+        )
 
-    return total_item_fig
+        return total_item_fig
+    
+    else:
+        return go.Figure()
     
     
