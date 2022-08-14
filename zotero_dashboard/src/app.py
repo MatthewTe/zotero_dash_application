@@ -29,16 +29,16 @@ app.layout = dbc.Container([
                 html.P([
                     "The dashboard queries data using the Python Zotero API, which requires your zotero main Library ID and your API key. You can find your Library ID (user ID) and API Key can be found or created in the Feeds/API section of your Zotero accout ", 
                     html.A("here.", href="https://www.zotero.org/settings/keys"),
-                    dbc.CardImg(src=app.get_asset_url("/images/Zotero_userID_screenshot.png"), style={"padding-top":"1rem"})
+                    dbc.CardImg(src=app.get_asset_url("images/Zotero_userID_screenshot.png"), style={"padding-top":"1rem"})
                     ]),
 
                 html.H4("Entering your userID and your Zoter API", style={"padding-top":"1rem"}),
                 html.P("Enter your userID and Zotero API in their respective input fields and wait for the dashboard to fully load all zotero source items (this may take awhile)"),
-                dbc.CardImg(src=app.get_asset_url("/images/Zotero_Dash_Inputs.png"), style={"padding-bottom":"1rem"}),
+                dbc.CardImg(src=app.get_asset_url("images/Zotero_Dash_Inputs.png"), style={"padding-bottom":"1rem"}),
                 html.P("When your data has been fully loaded the Status indicator will turn from red to green and the full dashboard should load soon after and look like this:"),
                 dbc.Row([
-                    dbc.Col(dbc.CardImg(src=app.get_asset_url("/images/Navbar_no_data_button.png"))),
-                    dbc.Col(dbc.CardImg(src=app.get_asset_url("/images/Navbar_data_found_button.png")))
+                    dbc.Col(dbc.CardImg(src=app.get_asset_url("images/Navbar_no_data_button.png"))),
+                    dbc.Col(dbc.CardImg(src=app.get_asset_url("images/Navbar_data_found_button.png")))
                 ]),    
                 html.H4("External Links:"),
                 dbc.Row(html.A("Project Github", href="https://github.com/MatthewTe/zotero_dash_application")),
