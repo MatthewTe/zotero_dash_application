@@ -15,7 +15,7 @@ app = dash.Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP],
     suppress_callback_exceptions = True
 )
-#server = app.server
+server = app.server
 
 
 # Main layout for the Dash Application:
@@ -172,5 +172,5 @@ def store_zotero_library(library_id=None, api_key=None):
     else:
         return None, None, "No Data Found", "danger"
 
-if __name__ == "__main__":
-    app.run_server(host="0.0.0.0", port=8050, debug=True)
+#if __name__ == "__main__":
+#    app.run_server(host="0.0.0.0", port=8050, debug=True)
