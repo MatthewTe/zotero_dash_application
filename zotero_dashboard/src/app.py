@@ -14,7 +14,7 @@ app = dash.Dash(
     use_pages=True,
     external_stylesheets=[dbc.themes.BOOTSTRAP],
     suppress_callback_exceptions = True,
-    url_base_pathname="/"
+    requests_pathname_prefix="/zotero/"
 )
 server = app.server
 
